@@ -89,12 +89,12 @@ class OperationManager(object):
 
 
 OPERATIONS = OperationManager({
-    df.CharField: [('upper', (string.upper, False, True, "convert to uppercase")),
-                   ('lower', (string.lower, False, True, "convert to lowercase")),
-                   ('capitalize', (string.capitalize, False, True, "capitalize first character")),
+    df.CharField: [('upper', (str.upper, False, True, "convert to uppercase")),
+                   ('lower', (str.lower, False, True, "convert to lowercase")),
+                   ('capitalize', (str.capitalize, False, True, "capitalize first character")),
                    ('capwords', (string.capwords, False, True, "capitalize each word")),
-                   ('swapcase', (string.swapcase, False, True, "")),
-                   ('trim', (string.strip, False, True, "leading and trailing whitespace"))],
+                   ('swapcase', (str.swapcase, False, True, "")),
+                   ('trim', (str.strip, False, True, "leading and trailing whitespace"))],
     df.IntegerField: [('add percent', (add_percent, True, True, "add <arg> percent to existing value")),
                       ('sub percent', (sub_percent, True, True, "")),
                       ('sub', (sub_percent, True, True, "")),
