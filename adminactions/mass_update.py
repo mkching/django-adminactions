@@ -15,7 +15,7 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 from django.utils.functional import curry
 from django.utils.datastructures import SortedDict
 from django.utils.safestring import mark_safe
@@ -327,7 +327,7 @@ def mass_update(modeladmin, request, queryset):
     tpl = 'adminactions/mass_update.html'
     ctx = {'adminform': adminForm,
            'form': form,
-           'title': u"Mass update %s" % force_unicode(modeladmin.opts.verbose_name_plural),
+           'title': u"Mass update %s" % force_text(modeladmin.opts.verbose_name_plural),
            'grouped': grouped,
            'fieldvalues': json.dumps(grouped, default=dthandler),
            'change': True,

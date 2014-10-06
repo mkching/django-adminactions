@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
-from django.utils.encoding import force_unicode
+from django.utils.encoding import force_text
 from adminactions import api
 from django.contrib import messages
 from django.contrib.admin import helpers
@@ -169,7 +169,7 @@ def merge(modeladmin, request, queryset):
     ctx.update({'adminform': adminForm,
                 'formset': formset,
                 'media': mark_safe(media),
-                'title': u"Merge %s" % force_unicode(modeladmin.opts.verbose_name_plural),
+                'title': u"Merge %s" % force_text(modeladmin.opts.verbose_name_plural),
                 'master': master,
                 'other': other})
     return render_to_response(tpl, RequestContext(request, ctx))
