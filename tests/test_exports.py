@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
-from __future__ import absolute_import
-import StringIO
+
+import io
 import xlrd
 import csv
 import mock
@@ -134,7 +134,7 @@ class ExportDeleteTreeTest(ExportMixin, SelectRowsMixin, CheckSignalsMixin, WebT
                     form['select_across'] = 1
                     res = form.submit()
                     res = res.form.submit('apply')
-                    self.assertEqual(res.content_disposition, u'attachment;filename="new.test"')
+                    self.assertEqual(res.content_disposition, 'attachment;filename="new.test"')
 
 
 class ExportAsCsvTest(ExportMixin, SelectRowsMixin, CheckSignalsMixin, WebTest):
@@ -162,7 +162,7 @@ class ExportAsCsvTest(ExportMixin, SelectRowsMixin, CheckSignalsMixin, WebTest):
             self._select_rows(form)
             res = form.submit()
             res = res.form.submit('apply')
-            io = StringIO.StringIO(res.body)
+            io = io.StringIO(res.body)
             csv_reader = csv.reader(io)
             rows = 0
             for c in csv_reader:
@@ -185,7 +185,7 @@ class ExportAsCsvTest(ExportMixin, SelectRowsMixin, CheckSignalsMixin, WebTest):
                     form['select_across'] = 1
                     res = form.submit()
                     res = res.form.submit('apply')
-                    self.assertEqual(res.content_disposition, u'attachment;filename="new.test"')
+                    self.assertEqual(res.content_disposition, 'attachment;filename="new.test"')
 
     def _run_action(self, steps=2):
         with user_grant_permission(self.user, ['auth.change_user', 'auth.adminactions_export_user']):
@@ -245,18 +245,18 @@ class ExportAsXlsTest(ExportMixin, SelectRowsMixin, CheckSignalsMixin, WebTest):
             res.form['columns'] = ['id', 'username', 'first_name'
                                                      '']
             res = res.form.submit('apply')
-            io = StringIO.StringIO(res.body)
+            io = io.StringIO(res.body)
 
             io.seek(0)
             w = xlrd.open_workbook(file_contents=io.read())
             sheet = w.sheet_by_index(0)
-            self.assertEquals(sheet.cell_value(0, 0), u'#')
-            self.assertEquals(sheet.cell_value(0, 1), u'ID')
-            self.assertEquals(sheet.cell_value(0, 2), u'username')
-            self.assertEquals(sheet.cell_value(0, 3), u'first name')
-            self.assertEquals(sheet.cell_value(1, 1), 1.0)
-            self.assertEquals(sheet.cell_value(1, 2), u'sax')
-            self.assertEquals(sheet.cell_value(2, 2), u'user')
+            self.assertEqual(sheet.cell_value(0, 0), '#')
+            self.assertEqual(sheet.cell_value(0, 1), 'ID')
+            self.assertEqual(sheet.cell_value(0, 2), 'username')
+            self.assertEqual(sheet.cell_value(0, 3), 'first name')
+            self.assertEqual(sheet.cell_value(1, 1), 1.0)
+            self.assertEqual(sheet.cell_value(1, 2), 'sax')
+            self.assertEqual(sheet.cell_value(2, 2), 'user')
             # self.assertEquals(sheet.cell_value(3, 2), u'user_00')
 
     def test_use_display_ok(self):
@@ -272,19 +272,19 @@ class ExportAsXlsTest(ExportMixin, SelectRowsMixin, CheckSignalsMixin, WebTest):
             res.form['columns'] = ['char', 'text', 'bigint', 'choices'
                                                              '']
             res = res.form.submit('apply')
-            io = StringIO.StringIO(res.body)
+            io = io.StringIO(res.body)
 
             io.seek(0)
             w = xlrd.open_workbook(file_contents=io.read())
             sheet = w.sheet_by_index(0)
-            self.assertEquals(sheet.cell_value(0, 1), u'Chäř')
-            self.assertEquals(sheet.cell_value(0, 2), u'bigint')
-            self.assertEquals(sheet.cell_value(0, 3), u'text')
-            self.assertEquals(sheet.cell_value(0, 4), u'choices')
-            self.assertEquals(sheet.cell_value(1, 1), u'Pizzä ïs Gööd')
-            self.assertEquals(sheet.cell_value(1, 2), 333333333.0)
-            self.assertEquals(sheet.cell_value(1, 3), u'lorem ipsum')
-            self.assertEquals(sheet.cell_value(1, 4), u'Choice 2')
+            self.assertEqual(sheet.cell_value(0, 1), 'Chäř')
+            self.assertEqual(sheet.cell_value(0, 2), 'bigint')
+            self.assertEqual(sheet.cell_value(0, 3), 'text')
+            self.assertEqual(sheet.cell_value(0, 4), 'choices')
+            self.assertEqual(sheet.cell_value(1, 1), 'Pizzä ïs Gööd')
+            self.assertEqual(sheet.cell_value(1, 2), 333333333.0)
+            self.assertEqual(sheet.cell_value(1, 3), 'lorem ipsum')
+            self.assertEqual(sheet.cell_value(1, 4), 'Choice 2')
 
     def test_use_display_ko(self):
         with user_grant_permission(self.user, ['tests.change_demomodel', 'tests.adminactions_export_demomodel']):
@@ -298,19 +298,19 @@ class ExportAsXlsTest(ExportMixin, SelectRowsMixin, CheckSignalsMixin, WebTest):
             res.form['columns'] = ['char', 'text', 'bigint', 'choices'
                                                              '']
             res = res.form.submit('apply')
-            io = StringIO.StringIO(res.body)
+            io = io.StringIO(res.body)
 
             io.seek(0)
             w = xlrd.open_workbook(file_contents=io.read())
             sheet = w.sheet_by_index(0)
-            self.assertEquals(sheet.cell_value(0, 1), u'Chäř')
-            self.assertEquals(sheet.cell_value(0, 2), u'bigint')
-            self.assertEquals(sheet.cell_value(0, 3), u'text')
-            self.assertEquals(sheet.cell_value(0, 4), u'choices')
-            self.assertEquals(sheet.cell_value(1, 1), u'Pizzä ïs Gööd')
-            self.assertEquals(sheet.cell_value(1, 2), 333333333.0)
-            self.assertEquals(sheet.cell_value(1, 3), u'lorem ipsum')
-            self.assertEquals(sheet.cell_value(1, 4), 2.0)
+            self.assertEqual(sheet.cell_value(0, 1), 'Chäř')
+            self.assertEqual(sheet.cell_value(0, 2), 'bigint')
+            self.assertEqual(sheet.cell_value(0, 3), 'text')
+            self.assertEqual(sheet.cell_value(0, 4), 'choices')
+            self.assertEqual(sheet.cell_value(1, 1), 'Pizzä ïs Gööd')
+            self.assertEqual(sheet.cell_value(1, 2), 333333333.0)
+            self.assertEqual(sheet.cell_value(1, 3), 'lorem ipsum')
+            self.assertEqual(sheet.cell_value(1, 4), 2.0)
 
     def test_unicode(self):
        with user_grant_permission(self.user, ['tests.change_demomodel', 'tests.adminactions_export_demomodel']):
@@ -323,10 +323,10 @@ class ExportAsXlsTest(ExportMixin, SelectRowsMixin, CheckSignalsMixin, WebTest):
             res.form['header'] = 1
             res.form['columns'] = ['char',]
             res = res.form.submit('apply')
-            io = StringIO.StringIO(res.body)
+            io = io.StringIO(res.body)
 
             io.seek(0)
             w = xlrd.open_workbook(file_contents=io.read())
             sheet = w.sheet_by_index(0)
-            self.assertEquals(sheet.cell_value(0, 1), u'Chäř')
-            self.assertEquals(sheet.cell_value(1, 1), u'Pizzä ïs Gööd')
+            self.assertEqual(sheet.cell_value(0, 1), 'Chäř')
+            self.assertEqual(sheet.cell_value(1, 1), 'Pizzä ïs Gööd')

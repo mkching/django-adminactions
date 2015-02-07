@@ -151,7 +151,7 @@ class TestMergeAction(SelectRowsMixin, WebTestMixin, TransactionTestCase):
     def _run_action(self, steps=3, page_start=None):
         with user_grant_permission(self.user, ['auth.change_user', 'auth.adminactions_merge_user']):
             if isinstance(steps, int):
-                steps = range(1, steps + 1)
+                steps = list(range(1, steps + 1))
                 res = self.app.get('/', user='user')
                 res = res.click('Users')
             else:

@@ -57,13 +57,13 @@ class SelectOptionsAttribute(widgets.Select):
         option_value = force_text(option_value)
         attrs = flatatt(self.options_attributes.get(option_value, {}))
         if option_value in selected_choices:
-            selected_html = u' selected="selected"'
+            selected_html = ' selected="selected"'
             if not self.allow_multiple_selected:
                 # Only allow for a single selection.
                 selected_choices.remove(option_value)
         else:
             selected_html = ''
-        return u'<option%s value="%s"%s>%s</option>' % (
+        return '<option%s value="%s"%s>%s</option>' % (
             attrs,
             escape(option_value), selected_html,
             conditional_escape(force_text(option_label)))
@@ -76,7 +76,7 @@ def field_function(model, form_field):
     options_attrs = {}
     choices = []
     classes = {True: 'param', False: 'noparam'}
-    for label, (__, param, enabler, __) in OPERATIONS.get_for_field(model_object).items():
+    for label, (__, param, enabler, __) in list(OPERATIONS.get_for_field(model_object).items()):
         options_attrs[label] = {'class': classes[param], 'label': label}
         choices.append((label, label))
     return SelectOptionsAttribute(attrs, choices, options_attrs).render("func_id_%s" % form_field.name, "")

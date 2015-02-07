@@ -5,7 +5,7 @@ from django.db import models
 
 
 class DemoModel(models.Model):
-    char = models.CharField(u'Chäř', max_length=255)
+    char = models.CharField('Chäř', max_length=255)
     integer = models.IntegerField()
     logic = models.BooleanField(default=False)
     null_logic = models.NullBooleanField(default=None)
