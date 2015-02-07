@@ -26,6 +26,7 @@ from adminactions.models import get_permission_codename
 from adminactions.exceptions import ActionInterrupted
 from adminactions.forms import GenericActionForm
 from adminactions.signals import adminaction_requested, adminaction_start, adminaction_end
+import collections
 
 
 DO_NOT_MASS_UPDATE = 'do_NOT_mass_UPDATE'
@@ -66,7 +67,7 @@ class OperationManager(object):
 
     def __init__(self, _dict):
         self._dict = dict()
-        for field_class, args in _dict.items():
+        for field_class, args in list(_dict.items()):
             self._dict[field_class] = SortedDict(self.COMMON + args)
 
     def get(self, field_class, d=None):
@@ -79,8 +80,8 @@ class OperationManager(object):
         """
         valid = SortedDict()
         operators = self.get(field.__class__)
-        for label, (func, param, enabler, help) in operators.items():
-            if (callable(enabler) and enabler(field)) or enabler is True:
+        for label, (func, param, enabler, help) in list(operators.items()):
+            if (isinstance(enabler, collections.Callable) and enabler(field)) or enabler is True:
                 valid[label] = (func, param, enabler, help)
         return valid
 
@@ -128,7 +129,7 @@ class MassUpdateForm(GenericActionForm):
 
     def _get_validation_exclusions(self):
         exclude = super(MassUpdateForm, self)._get_validation_exclusions()
-        for name, field in self.fields.items():
+        for name, field in list(self.fields.items()):
             function = self.data.get('func_id_%s' % name, False)
             if function:
                 exclude.append(name)
@@ -140,7 +141,7 @@ class MassUpdateForm(GenericActionForm):
             opts = self._meta
             self.instance = construct_instance(self, self.instance, opts.fields, opts.exclude)
             exclude = self._get_validation_exclusions()
-            for f_name, field in self.fields.items():
+            for f_name, field in list(self.fields.items()):
                 if isinstance(field, InlineForeignKeyField):
                     exclude.append(f_name)
                     # Clean the model instance's fields.
@@ -150,7 +151,7 @@ class MassUpdateForm(GenericActionForm):
                 self._update_errors(e.message_dict)
 
     def _clean_fields(self):
-        for name, field in self.fields.items():
+        for name, field in list(self.fields.items()):
             raw_value = field.widget.value_from_datadict(self.data, self.files, self.add_prefix(name))
             try:
                 if isinstance(field, ff.FileField):
@@ -204,8 +205,8 @@ def mass_update(modeladmin, request, queryset):
         errors = {}
         updated = 0
         for record in queryset:
-            for field_name, value_or_func in form.cleaned_data.items():
-                if callable(value_or_func):
+            for field_name, value_or_func in list(form.cleaned_data.items()):
+                if isinstance(value_or_func, collections.Callable):
                     old_value = getattr(record, field_name)
                     setattr(record, field_name, value_or_func(old_value))
                 else:
@@ -280,11 +281,11 @@ def mass_update(modeladmin, request, queryset):
 
             else:
                 values = {}
-                for field_name, value in form.cleaned_data.items():
+                for field_name, value in list(form.cleaned_data.items()):
                     if isinstance(form.fields[field_name], ModelMultipleChoiceField):
                         messages.error(request, "Unable no mass update ManyToManyField without 'validate'")
                         return HttpResponseRedirect(request.get_full_path())
-                    elif callable(value):
+                    elif isinstance(value, collections.Callable):
                         messages.error(request, "Unable no mass update using operators without 'validate'")
                         return HttpResponseRedirect(request.get_full_path())
                     elif field_name not in ['_selected_action', '_validate', 'select_across', 'action',
@@ -310,9 +311,9 @@ def mass_update(modeladmin, request, queryset):
         for f in modeladmin.model._meta.fields:
             if f.name not in form._no_sample_for:
                 if hasattr(f, 'flatchoices') and f.flatchoices:
-                    grouped[f.name] = dict(getattr(f, 'flatchoices')).values()
+                    grouped[f.name] = list(dict(getattr(f, 'flatchoices')).values())
                 elif hasattr(f, 'choices') and f.choices:
-                    grouped[f.name] = dict(getattr(f, 'choices')).values()
+                    grouped[f.name] = list(dict(getattr(f, 'choices')).values())
                 elif isinstance(f, df.BooleanField):
                     grouped[f.name] = [True, False]
                 else:
@@ -327,7 +328,7 @@ def mass_update(modeladmin, request, queryset):
     tpl = 'adminactions/mass_update.html'
     ctx = {'adminform': adminForm,
            'form': form,
-           'title': u"Mass update %s" % force_text(modeladmin.opts.verbose_name_plural),
+           'title': "Mass update %s" % force_text(modeladmin.opts.verbose_name_plural),
            'grouped': grouped,
            'fieldvalues': json.dumps(grouped, default=dthandler),
            'change': True,

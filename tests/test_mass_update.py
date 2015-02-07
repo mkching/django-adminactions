@@ -35,7 +35,7 @@ class MassUpdateTest(SelectRowsMixin, CheckSignalsMixin, WebTestMixin, Transacti
                 self._select_rows(form, selected_rows)
                 res = form.submit()
             if steps >= 2:
-                for k, v in kwargs.items():
+                for k, v in list(kwargs.items()):
                     res.form[k] = v
                 res.form['chk_id_char'].checked = True
                 res.form['func_id_char'] = 'upper'

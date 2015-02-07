@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import
+
 import os
 import types
 from django_dynamic_fixture import G
@@ -16,7 +16,7 @@ browsers = {
 
 
 @pytest.fixture(scope='session',
-                params=browsers.keys())
+                params=list(browsers.keys()))
 def driver(request):
     if 'DISPLAY' not in os.environ:
         pytest.skip('Test requires display server (export DISPLAY)')

@@ -8,6 +8,7 @@ from django.http import HttpResponse
 from adminactions.templatetags.actions import get_field_value
 from django.conf import settings
 import pytz
+import collections
 
 try:
     import unicodecsv as csv
@@ -93,19 +94,19 @@ def merge(master, other, fields=None, commit=False, m2m=None, related=None):
                         pass
                 else:
                     accessor = getattr(other, name)
-                    rel_fieldname = accessor.core_filters.keys()[0].split('__')[0]
+                    rel_fieldname = list(accessor.core_filters.keys())[0].split('__')[0]
                     for r in accessor.all():
                         all_related[name].append((rel_fieldname, r))
 
         if commit:
-            for name, elements in all_related.items():
+            for name, elements in list(all_related.items()):
                 for rel_fieldname, element in elements:
                     setattr(element, rel_fieldname, master)
                     element.save()
 
             other.delete()
             result.save()
-            for fieldname, elements in all_m2m.items():
+            for fieldname, elements in list(all_m2m.items()):
                 dest_m2m = getattr(result, fieldname)
                 for element in elements:
                     dest_m2m.add(element)
@@ -129,7 +130,7 @@ def export_as_csv(queryset, fields=None, header=None, filename=None, options=Non
         if filename is None:
             filename = filename or "%s.csv" % queryset.model._meta.verbose_name_plural.lower().replace(" ", "_")
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment;filename="%s"' % filename.encode('us-ascii', 'replace')
+        response['Content-Disposition'] = 'attachment;filename="%s"' % filename.encode('us-ascii', 'replace').decode()
     else:
         response = out
 
@@ -232,7 +233,7 @@ def export_as_xls(queryset, fields=None, header=None, filename=None, options=Non
         if filename is None:
             filename = filename or "%s.xls" % queryset.model._meta.verbose_name_plural.lower().replace(" ", "_")
         response = HttpResponse(content_type='application/vnd.ms-excel')
-        response['Content-Disposition'] = 'attachment;filename="%s"' % filename.encode('us-ascii', 'replace')
+        response['Content-Disposition'] = 'attachment;filename="%s"' % filename.encode('us-ascii', 'replace').decode()
     else:
         response = out
 
@@ -254,7 +255,7 @@ def export_as_xls(queryset, fields=None, header=None, filename=None, options=Non
     sheet.write(row, 0, '#', style)
     if header:
         if not isinstance(header, (list, tuple)):
-            header = [unicode(f.verbose_name) for f in queryset.model._meta.fields if f.name in fields]
+            header = [str(f.verbose_name) for f in queryset.model._meta.fields if f.name in fields]
 
         for col, fieldname in enumerate(header, start=1):
             sheet.write(row, col, fieldname, heading_xf)
@@ -274,7 +275,7 @@ def export_as_xls(queryset, fields=None, header=None, filename=None, options=Non
                                         fieldname,
                                         usedisplay=use_display,
                                         raw_callable=False)
-                if callable(fmt):
+                if isinstance(fmt, collections.Callable):
                     value = xlwt.Formula(fmt(value))
                     style = xlwt.easyxf(num_format_str='formula')
                 else:
